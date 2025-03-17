@@ -1,28 +1,27 @@
-import constants from '../constants/actionTypes'
+import constants from '../constants/actionTypes';
 
-let initialState = {
-    loggedIn: localStorage.getItem('token') ? true : false,
-    username: localStorage.getItem('username') ? localStorage.getItem('username') : ''
-}
+const initialState = {
+  loggedIn: Boolean(localStorage.getItem('token')),
+  username: localStorage.getItem('username') || '',
+};
 
 const authReducer = (state = initialState, action) => {
+  switch (action.type) {
+    case constants.USER_LOGGEDIN:
+      return {
+        ...state,
+        loggedIn: true,
+        username: action.username,
+      };
+    case constants.USER_LOGOUT:
+      return {
+        ...state,
+        loggedIn: false,
+        username: '',
+      };
+    default:
+      return state;
+  }
+};
 
-    var updated = Object.assign({}, state);
-
-    switch (action.type) {
-        case constants.USER_LOGGEDIN:
-            updated['loggedIn'] = true;
-            updated['username'] = action.username;
-            return updated;
-
-        case constants.USER_LOGOUT:
-            updated['loggedIn'] = false;
-            updated['username'] = '';
-            return updated;
-
-        default:
-            return state;
-    }
-}
-
-export default authReducer
+export default authReducer;

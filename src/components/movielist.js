@@ -6,51 +6,56 @@ import { Image, Nav, Carousel } from 'react-bootstrap';
 import { BsStarFill } from 'react-icons/bs';
 
 function MovieList() {
-    const dispatch = useDispatch();
-    const movies = useSelector(state => state.movie.movies);
+  const dispatch = useDispatch();
+  const movies = useSelector(state => state.movie.movies);
 
-    // Memoize the movies array
-    const memoizedMovies = useMemo(() => {
-        return movies;
-    }, [movies]);
+  // Memoize the movies array
+  const memoizedMovies = useMemo(() => movies, [movies]);
 
-    useEffect(() => {
-        dispatch(fetchMovies());
-    }, [dispatch]);
+  useEffect(() => {
+    dispatch(fetchMovies());
+  }, [dispatch]);
 
-    const handleSelect = (selectedIndex) => {
-        // Use memoizedMovies here
-        dispatch(setMovie(memoizedMovies[selectedIndex]));
-    };
-
-    const handleClick = (movie) => {
-        dispatch(setMovie(movie));
-    };
-
-    if (!memoizedMovies) { // Use memoizedMovies here
-        return <div>Loading....</div>;
+  const handleSelect = (selectedIndex) => {
+    if (Array.isArray(memoizedMovies)) {
+      dispatch(setMovie(memoizedMovies[selectedIndex]));
     }
+  };
 
-    return (
-        <Carousel onSelect={handleSelect} className="bg-dark text-light p-4 rounded">
-          {memoizedMovies.map((movie) => (
-            <Carousel.Item key={movie._id}>
-              {/* Use Nav.Link with "as={Link}" to avoid nested anchors */}
-              <Nav.Link
-                as={Link}
-                to={`/movie/${movie._id}`}
-                onClick={() => handleClick(movie)}
-              >
-                <Image className="image" src={movie.imageUrl} thumbnail />
-              </Nav.Link>
-              <Carousel.Caption>
-                <h3>{movie.title}</h3>
-                <BsStarFill /> {movie.avgRating} &nbsp;&nbsp; {movie.releaseDate}
-              </Carousel.Caption>
-            </Carousel.Item>
-          ))}
-        </Carousel>
-      );
-    }
+  const handleClick = (movie) => {
+    dispatch(setMovie(movie));
+  };
+
+  // If memoizedMovies is not an array or is empty, log and show a loading indicator
+  if (!Array.isArray(memoizedMovies)) {
+    console.error('memoizedMovies is not an array:', memoizedMovies);
+    return <div>Loading...</div>;
+  }
+  
+  if (memoizedMovies.length === 0) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <Carousel onSelect={handleSelect} className="bg-dark text-light p-4 rounded">
+      {memoizedMovies.map((movie) => (
+        <Carousel.Item key={movie._id}>
+          {/* Use Nav.Link with "as={Link}" to avoid nested anchors */}
+          <Nav.Link
+            as={Link}
+            to={`/movie/${movie._id}`}
+            onClick={() => handleClick(movie)}
+          >
+            <Image className="image" src={movie.imageUrl} thumbnail />
+          </Nav.Link>
+          <Carousel.Caption>
+            <h3>{movie.title}</h3>
+            <BsStarFill /> {movie.avgRating} &nbsp;&nbsp; {movie.releaseDate}
+          </Carousel.Caption>
+        </Carousel.Item>
+      ))}
+    </Carousel>
+  );
+}
 
 export default MovieList;
